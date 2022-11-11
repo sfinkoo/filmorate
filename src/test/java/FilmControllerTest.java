@@ -9,10 +9,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
 
-    private final IdCreator idCreator = new IdCreator();
+    private final IdCreator idCreator = new IdCreator() {
+        int id = 1;
+
+        @Override
+        public int createId() {
+            return id++;
+        }
+    };
+
     private static final FilmController FILM_CONTROLLER = new FilmController();
     private final Film film = new Film(idCreator.createId(), "Король лев",
-            "Король лев, описание", "1995-01-20", 90);
+            "Король лев, описание", "1995-01-20", 200);
 
     @Test
     public void addFilmTest() throws ValidationException {
@@ -22,9 +30,9 @@ public class FilmControllerTest {
 
     @Test
     public void addFilmTestWithNotCorrectDataTest() {
-        final Film wrongFilm = new Film(idCreator.createId(), "Король лев",
-                "Король лев, описание", "1995-01-20", -200);
-        Assertions.assertThrows(ValidationException.class, () -> FILM_CONTROLLER.addFilm(wrongFilm));
+        Film film = new Film(idCreator.createId(), "",
+                "Король лев, описание", "1995-01-20", 200);
+        Assertions.assertThrows(ValidationException.class, () -> FILM_CONTROLLER.addFilm(film));
     }
 
     @Test

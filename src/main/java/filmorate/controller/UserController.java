@@ -3,6 +3,7 @@ package filmorate.controller;
 import filmorate.IdCreator;
 import filmorate.exception.ResourceException;
 import filmorate.exception.ValidationException;
+import filmorate.models.Film;
 import filmorate.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +21,22 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final IdCreator idCreator = new IdCreator();
+    private final IdCreator idCreator = new IdCreator() {
+        int id = 1;
+
+        @Override
+        public int createId() {
+            return id++;
+        }
+    };
+
     private final HashMap<Integer, User> users = new HashMap<>();
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) throws ValidationException {
         log.debug("Количество пользователей до добавления: {}", users.size());
-        if (user.getBirthday().isAfter(ChronoLocalDate.from(LocalDate.now()))) {
+        if (validateName(user)) {
             log.debug("Переданы некорректные данные.");
             throw new ValidationException("Проверьте данные и сделайте повторный запрос.");
         }
@@ -39,7 +48,7 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
+        if (!validateContainsId(user)) {
             throw new ResourceException(HttpStatus.NOT_FOUND, "Пользователь с таким id не найден.");
         }
         users.put(user.getId(), user);
@@ -50,5 +59,13 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
+    }
+
+    private boolean validateName(User user) {
+        return user.getBirthday().isAfter(ChronoLocalDate.from(LocalDate.now()));
+    }
+
+    private boolean validateContainsId(User user) {
+        return users.containsKey(user.getId());
     }
 }

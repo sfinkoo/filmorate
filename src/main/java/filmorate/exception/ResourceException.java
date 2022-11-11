@@ -1,15 +1,12 @@
 package filmorate.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-@SuppressWarnings("ClassWithoutNoArgConstructor")
+@Getter
 public class ResourceException extends RuntimeException {
 
     private final HttpStatus httpStatus;
-
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
 
     public ResourceException(HttpStatus httpStatus, String message) {
         super(message);

@@ -10,7 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
 
-    private final IdCreator idCreator = new IdCreator();
+    private final IdCreator idCreator = new IdCreator() {
+        int id = 1;
+
+        @Override
+        public int createId() {
+            return id++;
+        }
+    };
+
     private static final UserController USER_CONTROLLER = new UserController();
     private final User user = new User(idCreator.createId(), "fiiinko@mail.ru", "finko",
             "Sofya", "2000-09-21");
@@ -34,7 +42,7 @@ public class UserControllerTest {
         User userForUpdate = new User(addUser.getId(), "fiiinko@mail.ru", "finko",
                 "Sonya", "2000-09-21");
         USER_CONTROLLER.updateUser(userForUpdate);
-        assertEquals(USER_CONTROLLER.getAllUsers().get(addUser.getId()-1), userForUpdate);
+        assertEquals(USER_CONTROLLER.getAllUsers().get(addUser.getId() - 1), userForUpdate);
     }
 
     @Test

@@ -7,7 +7,12 @@ import filmorate.models.Film;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -19,7 +24,15 @@ import java.util.List;
 @RequestMapping("/films")
 public class FilmController {
 
-    private final IdCreator idCreator = new IdCreator();
+    private final IdCreator idCreator = new IdCreator() {
+        int id = 1;
+
+        @Override
+        public int createId() {
+            return id++;
+        }
+    };
+
     private static final LocalDate MOVIE_BIRTHDAY = LocalDate.parse("1895-12-28");
     private final HashMap<Integer, Film> films = new HashMap<>();
     private final static Logger log = LoggerFactory.getLogger(FilmController.class);
@@ -27,9 +40,7 @@ public class FilmController {
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) throws ValidationException {
         log.debug("Количество фильмов до добавления: {}", films.size());
-        if (film.getName().equals("") || film.getDescription().length() > 200
-                || film.getReleaseDate().isBefore(MOVIE_BIRTHDAY)
-                || film.getDuration() <= 0) {
+        if (validateName(film)) {
             log.debug("Переданы некорректные данные.");
             throw new ValidationException("Проверьте данные и сделайте повторный запрос.");
         }
@@ -41,7 +52,7 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        if (!films.containsKey(film.getId())) {
+        if (!validateContainsId(film)) {
             throw new ResourceException(HttpStatus.NOT_FOUND, "Фильм с таким id не найден.");
         }
         films.put(film.getId(), film);
@@ -54,4 +65,12 @@ public class FilmController {
         return new ArrayList<>(films.values());
     }
 
+    private boolean validateName(Film film) {
+        return film.getName().equals("")
+                || film.getReleaseDate().isBefore(MOVIE_BIRTHDAY);
+    }
+
+    private boolean validateContainsId(Film film) {
+        return films.containsKey(film.getId());
+    }
 }
