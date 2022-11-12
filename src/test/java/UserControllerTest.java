@@ -10,15 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
 
-    private final IdCreator idCreator = new IdCreator() {
-        int id = 1;
-
-        @Override
-        public int createId() {
-            return id++;
-        }
-    };
-
+    private final IdCreator idCreator = new IdCreator();
     private static final UserController USER_CONTROLLER = new UserController();
     private final User user = new User(idCreator.createId(), "fiiinko@mail.ru", "finko",
             "Sofya", "2000-09-21");

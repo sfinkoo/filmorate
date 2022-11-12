@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Data
-
 public class User {
     private int id;
     @Email

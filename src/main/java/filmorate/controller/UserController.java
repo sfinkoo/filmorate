@@ -21,15 +21,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final IdCreator idCreator = new IdCreator() {
-        int id = 1;
-
-        @Override
-        public int createId() {
-            return id++;
-        }
-    };
-
+    private final IdCreator idCreator = new IdCreator();
     private final HashMap<Integer, User> users = new HashMap<>();
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
 

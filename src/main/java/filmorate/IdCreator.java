@@ -1,6 +1,14 @@
 package filmorate;
 
-public interface IdCreator {
+public class IdCreator {
 
-    int createId();
+    private int id;
+
+    public IdCreator() {
+        this.id = 1;
+    }
+
+    public int createId() {
+        return id++;
+    }
 }

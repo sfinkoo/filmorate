@@ -9,15 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
 
-    private final IdCreator idCreator = new IdCreator() {
-        int id = 1;
-
-        @Override
-        public int createId() {
-            return id++;
-        }
-    };
-
+    private final IdCreator idCreator = new IdCreator();
     private static final FilmController FILM_CONTROLLER = new FilmController();
     private final Film film = new Film(idCreator.createId(), "Король лев",
             "Король лев, описание", "1995-01-20", 200);

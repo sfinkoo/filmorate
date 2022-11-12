@@ -24,15 +24,7 @@ import java.util.List;
 @RequestMapping("/films")
 public class FilmController {
 
-    private final IdCreator idCreator = new IdCreator() {
-        int id = 1;
-
-        @Override
-        public int createId() {
-            return id++;
-        }
-    };
-
+    private final IdCreator idCreator = new IdCreator();
     private static final LocalDate MOVIE_BIRTHDAY = LocalDate.parse("1895-12-28");
     private final HashMap<Integer, Film> films = new HashMap<>();
     private final static Logger log = LoggerFactory.getLogger(FilmController.class);
