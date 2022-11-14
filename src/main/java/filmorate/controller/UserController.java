@@ -3,7 +3,6 @@ package filmorate.controller;
 import filmorate.IdCreator;
 import filmorate.exception.ResourceException;
 import filmorate.exception.ValidationException;
-import filmorate.models.Film;
 import filmorate.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +15,14 @@ import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     private final IdCreator idCreator = new IdCreator();
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping
