@@ -1,13 +1,12 @@
+import filmorate.controller.FilmController;
+import filmorate.exception.ValidationException;
+import filmorate.models.Film;
 import filmorate.service.FilmService;
 import filmorate.service.FilmValidator;
 import filmorate.service.UserService;
 import filmorate.storage.IdCreator;
-import filmorate.controller.FilmController;
-import filmorate.exception.ValidationException;
-import filmorate.models.Film;
 import filmorate.storage.InMemoryFilmStorage;
 import filmorate.storage.InMemoryUserStorage;
-import filmorate.storage.UserStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

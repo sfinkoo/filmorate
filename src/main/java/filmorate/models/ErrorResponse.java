@@ -1,5 +1,8 @@
 package filmorate.models;
 
+import lombok.Getter;
+
+@Getter
 public class ErrorResponse {
 
     private final String error;
@@ -8,7 +11,4 @@ public class ErrorResponse {
         this.error = error;
     }
 
-    public String getError() {
-        return error;
-    }
 }

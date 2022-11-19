@@ -1,11 +1,8 @@
-import filmorate.controller.FilmController;
-import filmorate.service.FilmService;
-import filmorate.service.FilmValidator;
-import filmorate.service.UserService;
-import filmorate.storage.IdCreator;
 import filmorate.controller.UserController;
 import filmorate.exception.ValidationException;
 import filmorate.models.User;
+import filmorate.service.UserService;
+import filmorate.storage.IdCreator;
 import filmorate.storage.InMemoryFilmStorage;
 import filmorate.storage.InMemoryUserStorage;
 import org.junit.jupiter.api.Assertions;

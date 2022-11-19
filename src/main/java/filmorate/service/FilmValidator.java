@@ -12,7 +12,7 @@ public class FilmValidator {
     private static final LocalDate MOVIE_BIRTHDAY = LocalDate.parse("1895-12-28");
 
     public void validateName(Film film) throws ValidationException {
-        if (film.getName().equals("")
+        if (film.getName().isBlank()
                 || film.getReleaseDate().isBefore(MOVIE_BIRTHDAY)) {
             throw new ValidationException("Проверьте данные и сделайте повторный запрос.");
         }

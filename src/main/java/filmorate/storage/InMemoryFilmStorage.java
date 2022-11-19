@@ -32,11 +32,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Integer> getAllIDs() {
-        return new ArrayList<>(films.keySet());
-    }
-
-    @Override
     public Film getFilmById(int id) {
         return films.get(id);
     }
