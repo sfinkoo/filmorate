@@ -1,45 +1,49 @@
-import filmorate.IdCreator;
 import filmorate.controller.UserController;
-import filmorate.exception.ResourceException;
-import filmorate.exception.ValidationException;
 import filmorate.models.User;
-import org.junit.jupiter.api.Assertions;
+import filmorate.service.UserService;
+import filmorate.storage.IdCreator;
+import filmorate.storage.InMemoryFilmStorage;
+import filmorate.storage.InMemoryUserStorage;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
+@SpringBootTest(classes = {
+        UserController.class,
+        InMemoryFilmStorage.class,
+        UserService.class,
+        InMemoryUserStorage.class
+})
 public class UserControllerTest {
 
+    @Autowired
+    private UserController userController;
+
     private final IdCreator idCreator = new IdCreator();
-    private static final UserController USER_CONTROLLER = new UserController();
     private final User user = new User(idCreator.createId(), "fiiinko@mail.ru", "finko",
             "Sofya", "2000-09-21");
 
     @Test
-    public void addUserTest() throws ValidationException {
-        USER_CONTROLLER.addUser(user);
-        assertTrue(USER_CONTROLLER.getAllUsers().contains(user));
+    public void addUserTest() {
+        userController.addUser(user);
+        assertTrue(userController.getAllUsers().contains(user));
     }
 
     @Test
-    public void addUserWithNotCorrectDataTest() {
-        final User wrongUser = new User(idCreator.createId(), "fiiinko@mail.ru", "finko",
-                "Sofya", "2025-09-21");
-        Assertions.assertThrows(ValidationException.class, () -> USER_CONTROLLER.addUser(wrongUser));
-    }
-
-    @Test
-    public void updateUserTest() throws ValidationException {
-        User addUser = USER_CONTROLLER.addUser(user);
+    public void updateUserTest() {
+        User addUser = userController.addUser(user);
         User userForUpdate = new User(addUser.getId(), "fiiinko@mail.ru", "finko",
                 "Sonya", "2000-09-21");
-        USER_CONTROLLER.updateUser(userForUpdate);
-        assertEquals(USER_CONTROLLER.getAllUsers().get(addUser.getId() - 1), userForUpdate);
+        userController.updateUser(userForUpdate);
+        assertEquals(userController.getAllUsers().get(addUser.getId() - 1), userForUpdate);
     }
 
     @Test
     public void getAllUsersTest() {
-        assertNotNull(USER_CONTROLLER.getAllUsers());
+        assertNotNull(userController.getAllUsers());
     }
 }
-

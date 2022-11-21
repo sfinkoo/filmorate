@@ -7,6 +7,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 public class Film {
@@ -19,6 +21,7 @@ public class Film {
     @Positive
     @Min(value = 0)
     private int duration;
+    private Map<Integer, User> likes;
 
     public Film(int id, String name, String description, String releaseDate, int duration) {
         this.id = id;
@@ -26,5 +29,6 @@ public class Film {
         this.description = description;
         this.releaseDate = LocalDate.parse(releaseDate, DateTimeFormatter.ISO_DATE);
         this.duration = duration;
+        this.likes = new HashMap<>();
     }
 }

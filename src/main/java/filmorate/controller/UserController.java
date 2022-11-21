@@ -1,63 +1,62 @@
 package filmorate.controller;
 
-import filmorate.IdCreator;
-import filmorate.exception.ResourceException;
 import filmorate.exception.ValidationException;
 import filmorate.models.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import filmorate.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final IdCreator idCreator = new IdCreator();
-    private final Map<Integer, User> users = new HashMap<>();
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) throws ValidationException {
-        log.debug("Количество пользователей до добавления: {}", users.size());
-        if (validateName(user)) {
-            log.debug("Переданы некорректные данные.");
-            throw new ValidationException("Проверьте данные и сделайте повторный запрос.");
-        }
-        user.setId(idCreator.createId());
-        users.put(user.getId(), user);
-        log.debug("Количество пользователей после добавления: {}", users.size());
-        return user;
+    public User addUser(@Valid @RequestBody User user) {
+        return userService.addUser(user);
     }
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
-        if (!validateContainsId(user)) {
-            throw new ResourceException(HttpStatus.NOT_FOUND, "Пользователь с таким id не найден.");
-        }
-        users.put(user.getId(), user);
-        log.debug("Информация о пользователе успешно обновлена.");
-        return user;
+        return userService.updateUser(user);
     }
 
     @GetMapping
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        return userService.getAllUsers();
     }
 
-    private boolean validateName(User user) {
-        return user.getBirthday().isAfter(ChronoLocalDate.from(LocalDate.now()));
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable int id) {
+        return userService.getUserById(id);
     }
 
-    private boolean validateContainsId(User user) {
-        return users.containsKey(user.getId());
+    @PutMapping("{id}/friends/{friendId}")
+    public void addToFriends(@PathVariable int id, @PathVariable int friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFromFriends(@PathVariable int id, @PathVariable int friendId) {
+        userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriendsById(@PathVariable int id) {
+        return userService.getFriendsById(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getGeneralListFriends(@PathVariable int id, @PathVariable int otherId) {
+        return userService.getGeneralListFriends(id, otherId);
     }
 }
