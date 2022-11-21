@@ -21,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) throws ValidationException {
+    public User addUser(@Valid @RequestBody User user) {
         return userService.addUser(user);
     }
 

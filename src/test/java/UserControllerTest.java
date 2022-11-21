@@ -1,17 +1,17 @@
 import filmorate.controller.UserController;
-import filmorate.exception.ValidationException;
 import filmorate.models.User;
 import filmorate.service.UserService;
 import filmorate.storage.IdCreator;
 import filmorate.storage.InMemoryFilmStorage;
 import filmorate.storage.InMemoryUserStorage;
-import org.junit.jupiter.api.Assertions;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest(classes = {
         UserController.class,
         InMemoryFilmStorage.class,
@@ -28,20 +28,13 @@ public class UserControllerTest {
             "Sofya", "2000-09-21");
 
     @Test
-    public void addUserTest() throws ValidationException {
+    public void addUserTest() {
         userController.addUser(user);
         assertTrue(userController.getAllUsers().contains(user));
     }
 
     @Test
-    public void addUserWithNotCorrectDataTest() {
-        final User wrongUser = new User(idCreator.createId(), "fiiinko@mail.ru", "finko",
-                "Sofya", "2025-09-21");
-        Assertions.assertThrows(ValidationException.class, () -> userController.addUser(wrongUser));
-    }
-
-    @Test
-    public void updateUserTest() throws ValidationException {
+    public void updateUserTest() {
         User addUser = userController.addUser(user);
         User userForUpdate = new User(addUser.getId(), "fiiinko@mail.ru", "finko",
                 "Sonya", "2000-09-21");

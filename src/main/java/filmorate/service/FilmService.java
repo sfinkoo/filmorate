@@ -5,8 +5,7 @@ import filmorate.exception.ValidationException;
 import filmorate.models.Film;
 import filmorate.storage.FilmStorage;
 import filmorate.storage.UserStorage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,14 +15,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class FilmService {
 
     private final FilmValidator filmValidator;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
-    private final static Logger log = LoggerFactory.getLogger(FilmService.class);
 
     @Autowired
     public FilmService(FilmValidator filmValidator, FilmStorage filmStorage, UserStorage userStorage) {
@@ -56,18 +54,21 @@ public class FilmService {
     }
 
     public void addLIke(int idFilm, int userId) {
+        log.debug("Лайк успешно поставлен.");
         filmStorage.addLike(idFilm, userStorage.getUserByID(userId));
     }
 
     public void deleteLike(int idFilm, int userId) {
         validateContainsIdUser(userId);
+        log.debug("Лайк успешно удален.");
         filmStorage.deleteLike(idFilm, userStorage.getUserByID(userId));
     }
 
     public List<Film> getTopsFilms(Integer count) {
         List<Film> topsFilmReverse = filmStorage.getAllFilms().stream()
                 .sorted(Comparator.<Film>comparingInt(film -> film.getLikes().size()).reversed())
-                .limit(count).collect(Collectors.toList());
+                .limit(count)
+                .collect(Collectors.toList());
         Collections.reverse(topsFilmReverse);
         return topsFilmReverse;
     }

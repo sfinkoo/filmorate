@@ -31,11 +31,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<Integer> getAllIDs() {
-        return new ArrayList<>(users.keySet());
-    }
-
-    @Override
     public User getUserByID(int id) {
         return users.get(id);
     }

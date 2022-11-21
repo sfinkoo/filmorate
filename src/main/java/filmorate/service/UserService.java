@@ -1,36 +1,30 @@
 package filmorate.service;
 
 import filmorate.exception.ResourceException;
-import filmorate.exception.ValidationException;
 import filmorate.models.User;
 import filmorate.storage.UserStorage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
 
     private final UserStorage userStorage;
-
-    private final static Logger log = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
-    public User addUser(User user) throws ValidationException {
-        validateBirthday(user);
+    public User addUser(User user) {
         userStorage.addUser(user);
         log.debug("Пользователь успешно добавлен.");
         return user;
@@ -64,12 +58,9 @@ public class UserService {
     }
 
     public List<User> getFriendsById(int id) {
-        List<Integer> idFriends = new ArrayList<>(userStorage.getUserByID(id).getFriends());
-        List<User> friends = new ArrayList<>();
-        for (int idF : idFriends) {
-            friends.add(userStorage.getUserByID(idF));
-        }
-        return friends;
+        return userStorage.getUserByID(id).getFriends().stream()
+                .map(userStorage::getUserByID)
+                .collect(Collectors.toList());
     }
 
     public List<User> getGeneralListFriends(int id, int otherId) {
@@ -79,20 +70,13 @@ public class UserService {
                 .filter(friends2::contains)
                 .collect(Collectors.toList());
         List<User> commonFriends = new ArrayList<>();
-        for (int idF : commonIdFriends) {
-            commonFriends.add(userStorage.getUserByID(idF));
+        for (int idFriends : commonIdFriends) {
+            commonFriends.add(userStorage.getUserByID(idFriends));
         }
         if (commonFriends.isEmpty()) {
             log.debug("Общих друзей нет.");
         }
         return commonFriends;
-    }
-
-
-    private void validateBirthday(User user) throws ValidationException {
-        if (user.getBirthday().isAfter(ChronoLocalDate.from(LocalDate.now()))) {
-            throw new ValidationException("Проверьте данные и сделайте повторный запрос.");
-        }
     }
 
     private void validateContainsId(int id) {
