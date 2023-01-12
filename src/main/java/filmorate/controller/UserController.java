@@ -1,14 +1,15 @@
 package filmorate.controller;
 
-import filmorate.exception.ValidationException;
 import filmorate.models.User;
 import filmorate.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -42,7 +43,7 @@ public class UserController {
 
     @PutMapping("{id}/friends/{friendId}")
     public void addToFriends(@PathVariable int id, @PathVariable int friendId) {
-        userService.addFriend(id, friendId);
+        userService.addToFriends(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -58,5 +59,15 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getGeneralListFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.getGeneralListFriends(id, otherId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUserById(@PathVariable int id) {
+        userService.deleteUserById(id);
+    }
+
+    @DeleteMapping
+    public void deleteAllUsers() {
+        userService.deleteAllUsers();
     }
 }

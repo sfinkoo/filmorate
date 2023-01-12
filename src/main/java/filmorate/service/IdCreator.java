@@ -1,4 +1,4 @@
-package filmorate.storage;
+package filmorate.service;
 
 public class IdCreator {
 

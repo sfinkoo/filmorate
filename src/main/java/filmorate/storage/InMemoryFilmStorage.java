@@ -2,6 +2,7 @@ package filmorate.storage;
 
 import filmorate.models.Film;
 import filmorate.models.User;
+import filmorate.service.IdCreator;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

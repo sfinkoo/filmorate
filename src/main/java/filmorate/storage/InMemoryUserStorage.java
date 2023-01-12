@@ -1,28 +1,28 @@
 package filmorate.storage;
 
 import filmorate.models.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
-    private final IdCreator idCreator = new IdCreator();
     private final Map<Integer, User> users = new HashMap<>();
 
     @Override
-    public void addUser(User user) {
-        user.setId(idCreator.createId());
+    public User addUser(User user) {
         users.put(user.getId(), user);
+        return user;
     }
 
     @Override
-    public void updateUser(User user) {
+    public User updateUser(User user) {
         users.put(user.getId(), user);
+        return user;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserByID(int id) {
+    public User getUserById(int id) {
         return users.get(id);
     }
 
@@ -45,5 +45,37 @@ public class InMemoryUserStorage implements UserStorage {
     public void deleteFromFriends(int id, int idFriend) {
         users.get(id).getFriends().remove(idFriend);
         users.get(idFriend).getFriends().remove(idFriend);
+    }
+
+    @Override
+    public List<User> getFriendsById(int id) {
+        return getUserById(id).getFriends().stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteUserById(int id) {
+    }
+
+    @Override
+    public void deleteAllUsers() {
+    }
+
+    @Override
+    public List<User> getGeneralListFriends(int idUser1, int idUser2) {
+        Set<Integer> friends1 = getUserById(idUser1).getFriends();
+        Set<Integer> friends2 = getUserById(idUser2).getFriends();
+        List<Integer> commonIdFriends = friends1.stream()
+                .filter(friends2::contains)
+                .collect(Collectors.toList());
+        List<User> commonFriends = new ArrayList<>();
+        for (int idFriends : commonIdFriends) {
+            commonFriends.add(getUserById(idFriends));
+        }
+        if (commonFriends.isEmpty()) {
+            log.debug("Общих друзей нет.");
+        }
+        return commonFriends;
     }
 }

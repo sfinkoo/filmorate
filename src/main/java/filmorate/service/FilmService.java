@@ -5,8 +5,10 @@ import filmorate.exception.ValidationException;
 import filmorate.models.Film;
 import filmorate.storage.FilmStorage;
 import filmorate.storage.UserStorage;
+import filmorate.validation.FilmValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,7 @@ public class FilmService {
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmValidator filmValidator, FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmValidator filmValidator, @Qualifier("filmDao") FilmStorage filmStorage, @Qualifier("userDao") UserStorage userStorage) {
         this.filmValidator = filmValidator;
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
@@ -55,13 +57,13 @@ public class FilmService {
 
     public void addLIke(int idFilm, int userId) {
         log.debug("Лайк успешно поставлен.");
-        filmStorage.addLike(idFilm, userStorage.getUserByID(userId));
+        filmStorage.addLike(idFilm, userStorage.getUserById(userId));
     }
 
     public void deleteLike(int idFilm, int userId) {
         validateContainsIdUser(userId);
         log.debug("Лайк успешно удален.");
-        filmStorage.deleteLike(idFilm, userStorage.getUserByID(userId));
+        filmStorage.deleteLike(idFilm, userStorage.getUserById(userId));
     }
 
     public List<Film> getTopsFilms(Integer count) {
@@ -80,7 +82,7 @@ public class FilmService {
     }
 
     private void validateContainsIdUser(int id) {
-        if (userStorage.getUserByID(id) == null) {
+        if (userStorage.getUserById(id) == null) {
             throw new ResourceException(HttpStatus.NOT_FOUND, "Пользователь с таким id не найден.");
         }
     }

@@ -1,12 +1,13 @@
-package filmorate.service;
+package filmorate.validation;
 
 import filmorate.exception.ValidationException;
 import filmorate.models.Film;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
-@Service
+@Component
 public class FilmValidator {
 
     private static final LocalDate MOVIE_BIRTHDAY = LocalDate.parse("1895-12-28");
