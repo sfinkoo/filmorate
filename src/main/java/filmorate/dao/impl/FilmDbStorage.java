@@ -99,9 +99,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        List<Film> films = new ArrayList<>();
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from FILM");
-        return getFilms(films, filmRows);
+        return getFilms(filmRows);
     }
 
     @Override
@@ -129,11 +128,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopsFilms(Integer count) {
-        String sql =
-                "SELECT F.ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.RATE, F.MPA "
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(
+                "SELECT F.ID, F.NAME, F.DESCRIPTION, F.RELEASEDATE, F.DURATION, F.RATE "
                         + "FROM FILM F LEFT JOIN LIKES L on F.ID = L.FILM_ID GROUP BY F.ID "
-                        + "ORDER BY COUNT(L.USER_ID) DESC LIMIT " + count;
-        return jdbcTemplate.query(sql, this::mapRowToFilm);
+                        + "ORDER BY COUNT(L.USER_ID) DESC LIMIT ?", count);
+        return getFilms(filmRows);
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
@@ -165,7 +164,8 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private List<Film> getFilms(List<Film> popularFilms, SqlRowSet filmRows) {
+    private List<Film> getFilms(SqlRowSet filmRows) {
+        List<Film> films = new ArrayList<>();
         while (filmRows.next()) {
             Film film = Film.builder()
                     .id(filmRows.getInt("ID"))
@@ -181,9 +181,9 @@ public class FilmDbStorage implements FilmStorage {
                     .build();
             log.info("Найден фильм: {} {}", film.getId(), film.getName());
 
-            popularFilms.add(film);
+            films.add(film);
         }
-        return popularFilms;
+        return films;
     }
 
     private Mpa getMpa(int idMpa) {
