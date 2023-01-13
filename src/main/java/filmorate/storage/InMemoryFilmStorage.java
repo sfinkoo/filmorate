@@ -5,10 +5,8 @@ import filmorate.models.User;
 import filmorate.service.IdCreator;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -39,11 +37,22 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void addLike(int idFilm, User user) {
-        films.get(idFilm).getLikes().put(user.getId(), user);
+//        films.get(idFilm).getLikes().put(user.getId(), user);
     }
 
     @Override
     public void deleteLike(int idFilm, User user) {
-        films.get(idFilm).getLikes().remove(user.getId());
+//        films.get(idFilm).getLikes().remove(user.getId());
+    }
+
+    @Override
+    public List<Film> getTopsFilms(Integer count) {
+//        List<Film> topsFilmReverse = getAllFilms().stream()
+//                .sorted(Comparator.<Film>comparingInt(film -> film.getLikes().size()).reversed())
+//                .limit(count)
+//                .collect(Collectors.toList());
+//        Collections.reverse(topsFilmReverse);
+//        return topsFilmReverse;
+        return null;
     }
 }

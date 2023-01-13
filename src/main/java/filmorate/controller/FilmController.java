@@ -26,7 +26,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) {
+    public Film updateFilm(@RequestBody Film film) throws ValidationException {
         return filmService.updateFilm(film);
     }
 
@@ -46,7 +46,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLike(@PathVariable("id") int idFilm, @PathVariable int userId) {
+    public void deleteLike(@PathVariable("id") int idFilm, @PathVariable int userId) throws ValidationException {
         filmService.deleteLike(idFilm, userId);
     }
 

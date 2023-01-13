@@ -1,17 +1,18 @@
 package filmorate.models;
 
+import filmorate.exception.ResourceException;
+import lombok.Builder;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeSet;
 
 @Data
+@Builder
 public class Film {
+
     private int id;
     private String name;
     @Size(max = 200)
@@ -21,14 +22,8 @@ public class Film {
     @Positive
     @Min(value = 0)
     private int duration;
-    private Map<Integer, User> likes;
 
-    public Film(int id, String name, String description, String releaseDate, int duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = LocalDate.parse(releaseDate, DateTimeFormatter.ISO_DATE);
-        this.duration = duration;
-        this.likes = new HashMap<>();
-    }
+    private String rate;
+    private Mpa mpa;
+    private TreeSet<Genre> genres;
 }

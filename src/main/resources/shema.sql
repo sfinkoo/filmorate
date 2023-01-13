@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS FILM
     NAME        VARCHAR,
     DESCRIPTION VARCHAR(200),
     RELEASEDATE DATE,
-    DURATION    INT,
+    DURATION    INTEGER,
     RATE        VARCHAR
     );
 
@@ -90,3 +90,28 @@ CREATE TABLE IF NOT EXISTS FEED
     EVENT_TYPE_ID INTEGER NOT NULL REFERENCES EVENT_TYPE (ID),                                       --одно из значениий LIKE, REVIEW или FRIEND
     ENTITY_ID     INTEGER NOT NULL REFERENCES USERS (ID) REFERENCES FILM (ID) REFERENCES REVIEWS (ID)--идентификатор сущности, с которой произошло событие
     );
+
+INSERT INTO MPA (NAME)
+VALUES ('G'),
+       ('PG'),
+       ('PG-13'),
+       ('R'),
+       ('NC-17');
+
+INSERT INTO GENRE (NAME)
+VALUES ('Комедия'),
+       ('Драма'),
+       ('Мультфильм'),
+       ('Триллер'),
+       ('Документальный'),
+       ('Боевик');
+
+INSERT INTO OPERATION(NAME)
+VALUES ('Add'),
+       ('Update'),
+       ('Remove');
+
+INSERT INTO EVENT_TYPE(NAME)
+VALUES ('LIKE'),
+       ('REVIEW'),
+       ('FRIEND');
