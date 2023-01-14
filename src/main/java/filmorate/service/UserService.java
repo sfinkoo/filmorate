@@ -1,12 +1,10 @@
 package filmorate.service;
 
-import filmorate.exception.ResourceException;
 import filmorate.models.User;
 import filmorate.storage.UserStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -10,7 +10,7 @@ public interface FilmStorage {
 
     void addFilm(Film film) throws ValidationException;
 
-    void updateFilm(Film film) throws ValidationException;
+    Film updateFilm(Film film) throws ValidationException;
 
     List<Film> getAllFilms();
 
@@ -21,4 +21,8 @@ public interface FilmStorage {
     void deleteLike(int idFilm, User user) throws ValidationException;
 
     List<Film> getTopsFilms(Integer count);
+
+    void deleteAllFilms();
+
+    void deleteFilmById(Integer id) throws ValidationException;
 }

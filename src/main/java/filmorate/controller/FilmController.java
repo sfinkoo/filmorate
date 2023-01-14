@@ -35,6 +35,16 @@ public class FilmController {
         return filmService.getAllFilms();
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteFilmById(@PathVariable int id) throws ValidationException {
+        filmService.deleteFilmById(id);
+    }
+
+    @DeleteMapping
+    public void deleteAllFilms() {
+        filmService.deleteAllFilm();
+    }
+
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable int id) {
         return filmService.getFilmById(id);

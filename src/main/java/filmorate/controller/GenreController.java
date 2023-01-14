@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -30,7 +29,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Genre> getGenresFilm(@PathVariable String id) {
+    public Genre getGenresFilm(@PathVariable String id) {
         log.debug("Получаем жанр {}.", id);
         return genreService.getGenresFromFilmService(id);
     }

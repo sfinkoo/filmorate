@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MpaService {
@@ -22,7 +21,7 @@ public class MpaService {
         return mpaDao.getMpa();
     }
 
-    public Optional<Mpa> getMpaFromFilmService(String idFilm) {
+    public Mpa getMpaFromFilmService(String idFilm) {
         return mpaDao.getMpaFromFilm(idFilm);
     }
 }

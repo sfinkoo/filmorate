@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-
+@AllArgsConstructor
 public class Mpa {
 
     private int id;

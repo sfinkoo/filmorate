@@ -1,12 +1,15 @@
 package filmorate.storage;
 
+import filmorate.exception.ValidationException;
 import filmorate.models.Film;
 import filmorate.models.User;
 import filmorate.service.IdCreator;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -21,8 +24,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         films.put(film.getId(), film);
+        return film;
     }
 
     @Override
@@ -54,5 +58,15 @@ public class InMemoryFilmStorage implements FilmStorage {
 //        Collections.reverse(topsFilmReverse);
 //        return topsFilmReverse;
         return null;
+    }
+
+    @Override
+    public void deleteAllFilms() {
+
+    }
+
+    @Override
+    public void deleteFilmById(Integer id) throws ValidationException {
+
     }
 }

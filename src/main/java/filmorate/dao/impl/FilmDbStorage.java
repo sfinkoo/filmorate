@@ -8,6 +8,7 @@ import filmorate.models.Mpa;
 import filmorate.models.User;
 import filmorate.storage.FilmStorage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,9 +19,7 @@ import org.springframework.stereotype.Component;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeSet;
 
 @Slf4j
@@ -29,6 +28,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -64,12 +64,11 @@ public class FilmDbStorage implements FilmStorage {
                         film.getId(),
                         genre.getId());
             }
-
         }
     }
 
     @Override
-    public void updateFilm(Film film) throws ValidationException {
+    public Film updateFilm(Film film) throws ValidationException {
         checkId(film.getId());
         checkNameFilm(film);
         String sql = "UPDATE FILM SET NAME=?, DESCRIPTION=?, RELEASEDATE=?, DURATION=?, RATE=?"
@@ -107,12 +106,13 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(sqlForMpa, film.getId());
             }
         }
+        return film;
     }
 
     @Override
     public List<Film> getAllFilms() {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from FILM");
-        return getFilms(filmRows);
+        String sql = "select * from FILM";
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
@@ -140,12 +140,38 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopsFilms(Integer count) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(
-                "SELECT F.ID, F.NAME, F.DESCRIPTION, F.RELEASEDATE, F.DURATION, F.RATE "
-                        + "FROM FILM F LEFT JOIN LIKES L on F.ID = L.FILM_ID GROUP BY F.ID "
-                        + "ORDER BY COUNT(L.USER_ID) DESC LIMIT ?", count);
-        return getFilms(filmRows);
+        String sql = "SELECT F.ID, F.NAME, F.DESCRIPTION, F.RELEASEDATE, F.DURATION, F.RATE "
+                + "FROM FILM F LEFT JOIN LIKES L on F.ID = L.FILM_ID GROUP BY F.ID "
+                + "ORDER BY COUNT(L.USER_ID) DESC LIMIT ?";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
     }
+
+    @Override
+    public void deleteAllFilms() {
+        String sqlDelLikes = "DELETE FROM LIKES";
+        jdbcTemplate.update(sqlDelLikes);
+        String sqlDelGenres = "DELETE FROM FILM_GENRE";
+        jdbcTemplate.update(sqlDelGenres);
+        String sqlDelMpa = "DELETE FROM FILM_MPA";
+        jdbcTemplate.update(sqlDelMpa);
+        String sql = "DELETE from FILM";
+        jdbcTemplate.update(sql);
+        log.info("Удалены все фильмы таблицы FILM");
+    }
+
+    @Override
+    public void deleteFilmById(Integer id) throws ValidationException {
+        checkId(id);
+        String sqlDelLikesId = "DELETE FROM LIKES WHERE FILM_ID=?";
+        jdbcTemplate.update(sqlDelLikesId, id);
+        String sqlDelGenreId = "DELETE FROM FILM_GENRE WHERE FILM_ID=?";
+        jdbcTemplate.update(sqlDelGenreId, id);
+        String sqlDelMpaId = "DELETE FROM FILM_MPA WHERE FILM_ID=?";
+        jdbcTemplate.update(sqlDelMpaId, id);
+        String sql = "DELETE from FILM where ID=?";
+        jdbcTemplate.update(sql, id);
+    }
+
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Film.builder()
@@ -158,43 +184,6 @@ public class FilmDbStorage implements FilmStorage {
                 .genres(getGenresForFilm(resultSet.getInt("id")))
                 .mpa(getMpaForFilm(resultSet.getInt("ID")))
                 .build();
-    }
-
-    private void checkNameFilm(Film film) throws ValidationException {
-        LocalDate MOVIE_BIRTHDAY = LocalDate.parse("1895-12-28");
-        if (film.getName().isBlank() || film.getName().isEmpty()
-                || film.getReleaseDate().isBefore(MOVIE_BIRTHDAY)) {
-            throw new ValidationException("Фильм не соответствует условиям. " +
-                    "Проверьте данные и повторите запрос.");
-        }
-    }
-
-    private void checkId(int id) throws ValidationException {
-        if (getFilmById(id) == null) {
-            throw new ResourceException(HttpStatus.NOT_FOUND, "Фильм с таким id не найден.");
-        } else if (id < 0) {
-            throw new ValidationException("Отрицательные значения не допустимы.");
-        }
-    }
-
-    private List<Film> getFilms(SqlRowSet filmRows) {
-        List<Film> films = new ArrayList<>();
-        while (filmRows.next()) {
-            Film film = Film.builder()
-                    .id(filmRows.getInt("ID"))
-                    .name(Objects.requireNonNull(filmRows.getString("NAME")))
-                    .description(Objects.requireNonNull(filmRows.getString("DESCRIPTION")))
-                    .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASEDATE")).toLocalDate())
-                    .duration(filmRows.getInt("DURATION"))
-                    .rate(filmRows.getString("RATE"))
-                    .mpa(getMpaForFilm(filmRows.getInt("ID")))
-                    .genres(getGenresForFilm(filmRows.getInt("ID")))
-                    .build();
-            log.info("Найден фильм: {} {}", film.getId(), film.getName());
-
-            films.add(film);
-        }
-        return films;
     }
 
     private Mpa getMpaForFilm(int idFilm) {
@@ -240,19 +229,21 @@ public class FilmDbStorage implements FilmStorage {
         return genresSet;
     }
 
-    private TreeSet<Genre> checkGenreToNull(TreeSet<Genre> genres) {
-        boolean check = true;
-        if (genres != null) {
-            if (!genres.isEmpty()) {
-                for (Genre genre : genres) {
-                    check = genre.getId() > 0;
-                }
-                if (!check) {
-                    genres.clear();
-                }
-            }
+    private void checkNameFilm(Film film) throws ValidationException {
+        LocalDate MOVIE_BIRTHDAY = LocalDate.parse("1895-12-28");
+        if (film.getName().isBlank() || film.getName().isEmpty()
+                || film.getReleaseDate().isBefore(MOVIE_BIRTHDAY)) {
+            throw new ValidationException("Фильм не соответствует условиям. " +
+                    "Проверьте данные и повторите запрос.");
         }
-        return genres;
+    }
+
+    private void checkId(int id) throws ValidationException {
+        if (getFilmById(id) == null) {
+            throw new ResourceException(HttpStatus.NOT_FOUND, "Фильм с таким id не найден.");
+        } else if (id < 0) {
+            throw new ValidationException("Отрицательные значения не допустимы.");
+        }
     }
 }
 

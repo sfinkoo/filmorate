@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -31,7 +30,7 @@ public class MpaController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Mpa> getMpaFromFilmService(@PathVariable String id) {
+    public Mpa getMpaFromFilmService(@PathVariable String id) {
         log.debug("Получаем рейтинг у фильма с id {}", id);
         return mpaService.getMpaFromFilmService(id);
     }

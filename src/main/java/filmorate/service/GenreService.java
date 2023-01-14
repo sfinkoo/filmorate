@@ -5,7 +5,6 @@ import filmorate.models.Genre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -21,7 +20,7 @@ public class GenreService {
         return genreDao.getGenres();
     }
 
-    public Optional<Genre> getGenresFromFilmService(String igFilm) {
+    public Genre getGenresFromFilmService(String igFilm) {
         return genreDao.getGenresFromFilm(igFilm);
     }
 }

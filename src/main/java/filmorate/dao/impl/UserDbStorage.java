@@ -4,6 +4,7 @@ import filmorate.exception.ResourceException;
 import filmorate.models.User;
 import filmorate.storage.UserStorage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,6 +23,7 @@ public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Autowired
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -74,7 +76,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void addToFriends(int idFriend, int idUser) {
+    public void addToFriends(int idUser, int idFriend) {
         checkId(idFriend);
         checkId(idUser);
         String sql = "INSERT INTO FRIENDSHIP (USER_ID, FRIEND_ID) VALUES (?, ?)";
@@ -114,16 +116,12 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getFriendsById(int id) {
         try {
-            String sql = "SELECT USERS.ID, USERS.NAME, USERS.LOGIN, USERS.EMAIL, USERS.BIRTHDAY " +
-                    "FROM USERS AS U " +
-                    "LEFT JOIN FRIENDSHIP F on U.ID = F.USER_ID " +
-                    "LEFT JOIN USERS on F.FRIEND_ID = USERS.ID " +
-                    "WHERE U.ID=?";
-            List<User> friends = new ArrayList<>();
-            SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
-            getUsers(friends, userRows);
-            log.info("У пользователя с id {} в подписках {} друзей", id, friends.size());
-            return friends;
+            String sql = "SELECT USERS.ID, USERS.NAME, USERS.LOGIN, USERS.EMAIL, USERS.BIRTHDAY" +
+                    " FROM USERS" +
+                    " WHERE USERS.ID in (" +
+                    "           SELECT FRIEND_ID FROM FRIENDSHIP WHERE USER_ID = ?)";
+
+            return jdbcTemplate.query(sql, this::mapRowToUser, id);
         } catch (Exception e) {
             log.info("У пользователя с id {} в подписках нет друзей", id);
             return new ArrayList<>();
@@ -140,11 +138,7 @@ public class UserDbStorage implements UserStorage {
                     "   OR USER_ID = ? " +
                     "GROUP BY U.ID, U.NAME, U.NAME, U.LOGIN, U.BIRTHDAY " +
                     "HAVING COUNT(FRIEND_ID) > 1";
-            List<User> commonFriends = new ArrayList<>();
-            SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, idUser1, idUser2);
-            getUsers(commonFriends, userRows);
-            log.info("У пользователей с id {} {} общих друзей: {} друзей", idUser1, idUser2, commonFriends.size());
-            return commonFriends;
+            return jdbcTemplate.query(sql, this::mapRowToUser, idUser1, idUser2);
         } catch (Exception e) {
             log.info("У пользователей с id {} и {} в нет общих друзей", idUser1, idUser2);
             return new ArrayList<>();
@@ -159,19 +153,6 @@ public class UserDbStorage implements UserStorage {
                 .email(resultSet.getString("email"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
-    }
-
-    private void getUsers(List<User> users, SqlRowSet userRows) {
-        while (userRows.next()) {
-            User user = User.builder()
-                    .id(userRows.getInt("id"))
-                    .name(userRows.getString("name"))
-                    .login(Objects.requireNonNull(userRows.getString("login")))
-                    .email(Objects.requireNonNull(userRows.getString("email")))
-                    .birthday(Objects.requireNonNull(userRows.getDate("birthday")).toLocalDate())
-                    .build();
-            users.add(user);
-        }
     }
 
     private void checkId(int id) {

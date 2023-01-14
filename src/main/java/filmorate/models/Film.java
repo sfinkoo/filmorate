@@ -1,16 +1,18 @@
 package filmorate.models;
 
-import filmorate.exception.ResourceException;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.TreeSet;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class Film {
 
     private int id;
