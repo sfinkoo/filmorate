@@ -20,7 +20,6 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final IdCreator idCreator = new IdCreator();
 
     @Autowired
     public FilmService(@Qualifier("filmDao") FilmStorage filmStorage, @Qualifier("userDao") UserStorage userStorage) {
@@ -29,7 +28,6 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) throws ValidationException {
-        film.setId(idCreator.createId());
         filmStorage.addFilm(film);
         log.debug("Фильм успешно добавлен.");
         return film;

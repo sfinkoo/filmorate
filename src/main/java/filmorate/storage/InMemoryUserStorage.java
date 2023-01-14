@@ -1,6 +1,7 @@
 package filmorate.storage;
 
 import filmorate.models.User;
+import filmorate.service.IdCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +13,11 @@ import java.util.stream.Collectors;
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Integer, User> users = new HashMap<>();
+    private final IdCreator idCreator = new IdCreator();
 
     @Override
     public User addUser(User user) {
+        user.setId((idCreator.createId()));
         users.put(user.getId(), user);
         return user;
     }

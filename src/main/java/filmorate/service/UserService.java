@@ -16,7 +16,6 @@ import java.util.List;
 public class UserService {
 
     private final UserStorage userStorage;
-    private final IdCreator idCreator = new IdCreator();
 
     @Autowired
     public UserService(@Qualifier("userDao") UserStorage userStorage) {
@@ -27,7 +26,6 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        user.setId(idCreator.createId());
         userStorage.addUser(user);
         log.debug("Пользователь успешно добавлен.");
         return user;

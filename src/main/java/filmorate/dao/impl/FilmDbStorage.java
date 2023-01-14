@@ -6,6 +6,7 @@ import filmorate.models.Film;
 import filmorate.models.Genre;
 import filmorate.models.Mpa;
 import filmorate.models.User;
+import filmorate.service.IdCreator;
 import filmorate.storage.FilmStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -41,6 +42,11 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getRate());
 
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from FILM where NAME=?", film.getName());
+        if (filmRows.next()) {
+            film.setId(filmRows.getInt("id"));
+        }
+
         if (film.getMpa() != null) {
             String sqlForMpa = "INSERT INTO FILM_MPA (FILM_ID, MPA_ID) VALUES ((?), (?))";
             jdbcTemplate.update(sqlForMpa,
@@ -49,10 +55,13 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         if (film.getGenres() != null) {
-            String sqlForGenre = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES ((?), (?))";
-            jdbcTemplate.update(sqlForGenre,
-                    film.getId(),
-                    film.getGenres());
+            String sqlForGenre= "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES ((?), (?))";
+            for (Genre genre : film.getGenres()) {
+                jdbcTemplate.update(sqlForGenre,
+                        film.getId(),
+                        genre.getId());
+            }
+
         }
     }
 
@@ -176,7 +185,6 @@ public class FilmDbStorage implements FilmStorage {
                     .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASEDATE")).toLocalDate())
                     .duration(filmRows.getInt("DURATION"))
                     .rate(filmRows.getString("RATE"))
-
                     .genres(getGenresForFilm(filmRows.getInt("ID")))
                     .build();
             log.info("Найден фильм: {} {}", film.getId(), film.getName());
@@ -204,10 +212,10 @@ public class FilmDbStorage implements FilmStorage {
     private Mpa getMpaForFilm(int idFilm) {
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(
                 "SELECT M2.ID, M2.NAME "
-                + "FROM FILM F "
-                + "LEFT JOIN FILM_MPA FM on F.ID = FM.film_id "
-                + "LEFT JOIN MPA M2 on FM.mpa_id = M2.ID "
-                + "WHERE F.ID =?", idFilm);
+                        + "FROM FILM F "
+                        + "LEFT JOIN FILM_MPA FM on F.ID = FM.film_id "
+                        + "LEFT JOIN MPA M2 on FM.mpa_id = M2.ID "
+                        + "WHERE F.ID =?", idFilm);
         return Mpa.builder()
                 .id(genreRows.getInt("id"))
                 .name(genreRows.getString("name"))
