@@ -6,19 +6,22 @@ import filmorate.models.Film;
 import filmorate.models.Genre;
 import filmorate.models.Mpa;
 import filmorate.models.User;
-import filmorate.service.IdCreator;
 import filmorate.storage.FilmStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.TreeSet;
 
 @Slf4j
 @Component("filmDao")
@@ -55,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         if (film.getGenres() != null) {
-            String sqlForGenre= "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES ((?), (?))";
+            String sqlForGenre = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES ((?), (?))";
             for (Genre genre : film.getGenres()) {
                 jdbcTemplate.update(sqlForGenre,
                         film.getId(),
@@ -153,6 +156,7 @@ public class FilmDbStorage implements FilmStorage {
                 .name(resultSet.getString("name"))
                 .releaseDate(resultSet.getDate("releasedate").toLocalDate())
                 .genres(getGenresForFilm(resultSet.getInt("id")))
+                .mpa(getMpaForFilm(resultSet.getInt("ID")))
                 .build();
     }
 
@@ -178,13 +182,12 @@ public class FilmDbStorage implements FilmStorage {
         while (filmRows.next()) {
             Film film = Film.builder()
                     .id(filmRows.getInt("ID"))
-
                     .name(Objects.requireNonNull(filmRows.getString("NAME")))
                     .description(Objects.requireNonNull(filmRows.getString("DESCRIPTION")))
-
                     .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASEDATE")).toLocalDate())
                     .duration(filmRows.getInt("DURATION"))
                     .rate(filmRows.getString("RATE"))
+                    .mpa(getMpaForFilm(filmRows.getInt("ID")))
                     .genres(getGenresForFilm(filmRows.getInt("ID")))
                     .build();
             log.info("Найден фильм: {} {}", film.getId(), film.getName());
@@ -194,32 +197,27 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
-    private Mpa getMpa(int idMpa) {
-        SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(
-                "select * from MPA where ID=?", idMpa);
-        Mpa mpa;
-        if (mpaRows.next()) {
-            mpa = Mpa.builder()
-                    .id(mpaRows.getInt("id"))
-                    .name(mpaRows.getString("name"))
-                    .build();
-        } else {
-            throw new ResourceException(HttpStatus.NOT_FOUND, "MPA не найден");
-        }
-        return mpa;
-    }
-
     private Mpa getMpaForFilm(int idFilm) {
-        SqlRowSet genreRows = jdbcTemplate.queryForRowSet(
+        String sql =
                 "SELECT M2.ID, M2.NAME "
                         + "FROM FILM F "
                         + "LEFT JOIN FILM_MPA FM on F.ID = FM.film_id "
                         + "LEFT JOIN MPA M2 on FM.mpa_id = M2.ID "
-                        + "WHERE F.ID =?", idFilm);
-        return Mpa.builder()
-                .id(genreRows.getInt("id"))
-                .name(genreRows.getString("name"))
-                .build();
+                        + "WHERE F.ID =" + idFilm;
+
+        RowMapper<Mpa> rowMapper = (rs, rowNum) ->
+                Mpa.builder()
+                        .id(rs.getInt(1))
+                        .name(rs.getString(2))
+                        .build();
+
+        List<Mpa> mpa = jdbcTemplate.query(sql, rowMapper);
+
+        if (mpa.isEmpty()) {
+            throw new ResourceException(HttpStatus.OK, "у фильма пока нет MPA.");
+        } else {
+            return mpa.get(0);
+        }
     }
 
     private TreeSet<Genre> getGenresForFilm(int idFilm) {
