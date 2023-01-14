@@ -65,6 +65,6 @@ public class UserService {
     }
 
     public void addToFriends(int idUser, int idFriend) {
-        userStorage.addToFriends(idFriend, idUser);
+        userStorage.addToFriends(idUser, idFriend);
     }
 }

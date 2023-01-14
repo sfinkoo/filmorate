@@ -123,8 +123,7 @@ public class UserDbStorage implements UserStorage {
 
             return jdbcTemplate.query(sql, this::mapRowToUser, id);
         } catch (Exception e) {
-            log.info("У пользователя с id {} в подписках нет друзей", id);
-            return new ArrayList<>();
+            throw new ResourceException(HttpStatus.NOT_FOUND, "у пользователя пока нет друзей.");
         }
     }
 
