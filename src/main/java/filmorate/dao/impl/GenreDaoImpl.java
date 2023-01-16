@@ -3,6 +3,7 @@ package filmorate.dao.impl;
 import filmorate.dao.GenreDao;
 import filmorate.exception.ResourceException;
 import filmorate.models.Genre;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,14 +18,10 @@ import java.util.TreeSet;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class GenreDaoImpl implements GenreDao {
 
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public GenreDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Set<Genre> getGenres() {

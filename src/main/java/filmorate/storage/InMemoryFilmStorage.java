@@ -1,6 +1,5 @@
 package filmorate.storage;
 
-import filmorate.exception.ValidationException;
 import filmorate.models.Film;
 import filmorate.models.User;
 import filmorate.service.IdCreator;
@@ -41,23 +40,17 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void addLike(int idFilm, User user) {
-//        films.get(idFilm).getLikes().put(user.getId(), user);
+
     }
 
     @Override
     public void deleteLike(int idFilm, User user) {
-//        films.get(idFilm).getLikes().remove(user.getId());
+
     }
 
     @Override
     public List<Film> getTopsFilms(Integer count) {
-//        List<Film> topsFilmReverse = getAllFilms().stream()
-//                .sorted(Comparator.<Film>comparingInt(film -> film.getLikes().size()).reversed())
-//                .limit(count)
-//                .collect(Collectors.toList());
-//        Collections.reverse(topsFilmReverse);
-//        return topsFilmReverse;
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -66,7 +59,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilmById(Integer id) throws ValidationException {
+    public void deleteFilmById(Integer id) {
 
     }
 }

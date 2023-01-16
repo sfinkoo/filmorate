@@ -8,7 +8,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.TreeSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -27,5 +27,5 @@ public class Film {
 
     private String rate;
     private Mpa mpa;
-    private TreeSet<Genre> genres;
+    private Set<Genre> genres;
 }
