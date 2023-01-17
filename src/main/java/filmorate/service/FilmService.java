@@ -4,6 +4,7 @@ import filmorate.exception.ValidationException;
 import filmorate.models.Film;
 import filmorate.storage.FilmStorage;
 import filmorate.storage.UserStorage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -207,9 +207,7 @@ class FilmorateApplicationTests {
         assertEquals(expected, popularFilms, "Списки не совпадают");
     }
 
-    /**
-     * тест на удаление фильма по id
-     */
+
     @Test
     public void isDeleteFilmById() throws ValidationException {
         filmDbStorage.deleteFilmById(film1.getId());
