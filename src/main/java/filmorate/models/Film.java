@@ -28,5 +28,5 @@ public class Film {
 
     private String rate;
     private Mpa mpa;
-    private TreeSet<Genre> genres;
+    private Set<Genre> genres;
 }

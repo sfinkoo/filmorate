@@ -86,6 +86,7 @@ public class FilmDbStorage implements FilmStorage {
                 for (Genre genre : film.getGenres()) {
                     jdbcTemplate.update(sqlG, film.getId(), genre.getId());
                 }
+                film.setGenres(new TreeSet<>(film.getGenres()));
             } else {
                 String sqlG = "DELETE FROM FILM_GENRE WHERE FILM_ID=?";
                 jdbcTemplate.update(sqlG, film.getId());
@@ -206,14 +207,14 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private TreeSet<Genre> getGenresForFilm(int idFilm) {
+    private Set<Genre> getGenresForFilm(int idFilm) {
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(
                 "SELECT G2.ID, G2.NAME "
                         + "FROM FILM F "
                         + "LEFT JOIN FILM_GENRE FG on F.ID = FG.film_id "
                         + "LEFT JOIN GENRE G2 on FG.genre_id = G2.ID "
                         + "WHERE F.ID =?", idFilm);
-        TreeSet<Genre> genresSet = new TreeSet<>();
+        Set<Genre> genresSet = new TreeSet<>();
         while (genreRows.next()) {
             Genre genre = Genre.builder()
                     .id(genreRows.getInt("id"))
