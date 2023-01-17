@@ -3,7 +3,7 @@ package filmorate.controller;
 import filmorate.exception.ValidationException;
 import filmorate.models.Film;
 import filmorate.service.FilmService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -11,14 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
 
     private final FilmService filmService;
-
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) throws ValidationException {
