@@ -1,7 +1,9 @@
 package filmorate.storage;
 
+import filmorate.exception.ValidationException;
 import filmorate.models.Film;
 import filmorate.models.User;
+import filmorate.service.IdCreator;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -22,8 +24,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         films.put(film.getId(), film);
+        return film;
     }
 
     @Override
@@ -38,11 +41,32 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void addLike(int idFilm, User user) {
-        films.get(idFilm).getLikes().put(user.getId(), user);
+//        films.get(idFilm).getLikes().put(user.getId(), user);
     }
 
     @Override
     public void deleteLike(int idFilm, User user) {
-        films.get(idFilm).getLikes().remove(user.getId());
+//        films.get(idFilm).getLikes().remove(user.getId());
+    }
+
+    @Override
+    public List<Film> getTopsFilms(Integer count) {
+//        List<Film> topsFilmReverse = getAllFilms().stream()
+//                .sorted(Comparator.<Film>comparingInt(film -> film.getLikes().size()).reversed())
+//                .limit(count)
+//                .collect(Collectors.toList());
+//        Collections.reverse(topsFilmReverse);
+//        return topsFilmReverse;
+        return null;
+    }
+
+    @Override
+    public void deleteAllFilms() {
+
+    }
+
+    @Override
+    public void deleteFilmById(Integer id) throws ValidationException {
+
     }
 }
